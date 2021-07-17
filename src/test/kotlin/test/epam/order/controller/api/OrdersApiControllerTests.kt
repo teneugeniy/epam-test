@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional
 import test.epam.order.domain.entity.item.Item
 import test.epam.order.repository.ItemRepository
 import test.epam.order.repository.OrderRepository
+import test.epam.order.service.offer.calculator.BuyOneGetOneFreeOnApplesOfferCalculator
+import test.epam.order.service.offer.calculator.ThreeForPriceOfTwoOnOrangesOfferCalculator
 
 @ExtendWith(SpringExtension::class)
 @AutoConfigureMockMvc
@@ -91,5 +93,114 @@ class OrdersApiControllerTests {
             assertEquals(5, orderItem.amount)
             assertEquals(50.0.toBigDecimal(), orderItem.calculatedTotal)
         }
+    }
+
+    @Test
+    fun `post SHOULD create an order with offer in apples WHEN there are apples in the request`() {
+        // arrange
+        val applesItem = itemRepository.getOneByName("apples")
+
+        mvc.perform(
+            post("/api/orders")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    """
+                    {
+                        "items": [
+                            {
+                                "itemId": ${applesItem.idValue},
+                                "amount": 5
+                            }
+                        ]
+                    }
+                """
+                )
+        )
+            .andExpect(status().isOk)
+            .andExpect(
+                content().json(
+                    """
+                    {
+                        "items": [
+                            {
+                                "item": {
+                                    "id": ${applesItem.idValue},
+                                    "name": "apples"
+                                },
+                                "price": 0.60,
+                                "amount": 5,
+                                "calculatedTotal": 3.00
+                            }
+                        ],
+                        "totalPrice": 3.00,
+                        "appliedOffers": [
+                            {
+                                "offerUid": ${BuyOneGetOneFreeOnApplesOfferCalculator.OFFER_UID},
+                                "offerCode": ${BuyOneGetOneFreeOnApplesOfferCalculator.OFFER_CODE},
+                                "discount": 0.00,
+                                "item": {
+                                    "id": ${applesItem.idValue},
+                                    "name": "apples"
+                                },
+                                "amount": 5
+                            }
+                        ],
+                        "priceToPay": 3.00
+                    }"""
+                )
+            )
+    }
+
+    @Test
+    fun `post SHOULD create an order with a discount WHEN there are oranges in the request`() {
+        // arrange
+        val orangesItem = itemRepository.getOneByName("oranges")
+
+        mvc.perform(
+            post("/api/orders")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    """
+                    {
+                        "items": [
+                            {
+                                "itemId": ${orangesItem.idValue},
+                                "amount": 5
+                            }
+                        ]
+                    }
+                """
+                )
+        )
+            .andExpect(status().isOk)
+            .andExpect(
+                content().json(
+                    """
+                    {
+                        "items": [
+                            {
+                                "item": {
+                                    "id": ${orangesItem.idValue},
+                                    "name": "oranges"
+                                },
+                                "price": 0.25,
+                                "amount": 5,
+                                "calculatedTotal": 1.25
+                            }
+                        ],
+                        "totalPrice": 1.25,
+                        "appliedOffers": [
+                            {
+                                "offerUid": ${ThreeForPriceOfTwoOnOrangesOfferCalculator.OFFER_UID},
+                                "offerCode": ${ThreeForPriceOfTwoOnOrangesOfferCalculator.OFFER_CODE},
+                                "discount": 0.25,
+                                "item": null,
+                                "amount": 0
+                            }
+                        ],
+                        "priceToPay": 1.00
+                    }"""
+                )
+            )
     }
 }

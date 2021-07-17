@@ -6,17 +6,20 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import test.epam.order.domain.entity.item.Item
-import test.epam.order.domain.entity.order.CreateOrderCommand
-import test.epam.order.domain.entity.order.CreateOrderItemCommand
+import test.epam.order.domain.entity.order.AppliedOffer
 import test.epam.order.domain.entity.order.Order
 import test.epam.order.domain.entity.order.OrderItem
+import test.epam.order.domain.entity.order.command.CreateOrderCommand
+import test.epam.order.domain.entity.order.command.CreateOrderItemCommand
 import test.epam.order.dto.http.item.ItemDto
 import test.epam.order.dto.http.order.AddOrderItemRequestDto
 import test.epam.order.dto.http.order.AddOrderRequestDto
+import test.epam.order.dto.http.order.AppliedOfferDto
 import test.epam.order.dto.http.order.OrderDto
 import test.epam.order.dto.http.order.OrderItemDto
 import test.epam.order.service.ItemService
 import java.time.LocalDateTime
+import java.util.UUID
 
 class OrderMapperImplTests {
 
@@ -128,7 +131,17 @@ class OrderMapperImplTests {
                 )
             ),
             timeStamp = LocalDateTime.MIN,
-            totalPrice = 5.toBigDecimal()
+            totalPrice = 5.toBigDecimal(),
+            appliedOffers = listOf(
+                AppliedOffer(
+                    offerUid = UUID.fromString("ea360bc8-e6b4-11eb-ba80-0242ac130004"),
+                    offerCode = "super-offer",
+                    item = item,
+                    amount = 3,
+                    discount = 3.toBigDecimal(),
+                )
+            ),
+            totalPriceToPay = 10.toBigDecimal()
         ).apply { id = 6 }
         val expectedResult = OrderDto(
             id = 6,
@@ -140,7 +153,17 @@ class OrderMapperImplTests {
                     calculatedTotal = 4.toBigDecimal()
                 )
             ),
-            totalPrice = 5.toBigDecimal()
+            totalPrice = 5.toBigDecimal(),
+            appliedOffers = listOf(
+                AppliedOfferDto(
+                    offerUid = UUID.fromString("ea360bc8-e6b4-11eb-ba80-0242ac130004"),
+                    offerCode = "super-offer",
+                    discount = 3.toBigDecimal(),
+                    item = itemDto,
+                    amount = 3,
+                )
+            ),
+            priceToPay = 10.toBigDecimal()
         )
         whenever(itemMapper.toItemDto(item)).thenReturn(itemDto)
 

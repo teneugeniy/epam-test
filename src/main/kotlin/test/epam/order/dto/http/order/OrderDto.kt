@@ -7,11 +7,13 @@ data class OrderDto(
     val id: Long,
     val items: Collection<OrderItemDto>,
     val totalPrice: BigDecimal,
+    val appliedOffers: Collection<AppliedOfferDto>,
+    val priceToPay: BigDecimal,
 )
 
 data class OrderItemDto(
     val item: ItemDto,
     val price: BigDecimal,
     val amount: Int,
-    val calculatedTotal: BigDecimal
+    val calculatedTotal: BigDecimal,
 )

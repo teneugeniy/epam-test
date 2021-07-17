@@ -12,9 +12,10 @@ VALUES ('apples', 0.60),
 
 CREATE TABLE orders
 (
-    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
-    time_stamp  DATETIME NOT NULL,
-    total_price DECIMAL  NOT NULL
+    id                 BIGINT AUTO_INCREMENT PRIMARY KEY,
+    time_stamp         DATETIME NOT NULL,
+    total_price        DECIMAL  NOT NULL,
+    total_price_to_pay DECIMAL  NOT NULL
 );
 
 CREATE TABLE order_items
@@ -25,6 +26,19 @@ CREATE TABLE order_items
     price            DECIMAL NOT NULL,
     amount           INT     NOT NULL,
     calculated_total DECIMAL NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders (id),
+    FOREIGN KEY (item_id) REFERENCES items (id)
+);
+
+CREATE TABLE applied_offers
+(
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_id   BIGINT       NOT NULL,
+    offer_uid  UUID         NOT NULL,
+    offer_code VARCHAR(255) NOT NULL,
+    item_id    BIGINT       NULL,
+    amount     INT          NULL,
+    discount   DECIMAL      NOT NULL,
     FOREIGN KEY (order_id) REFERENCES orders (id),
     FOREIGN KEY (item_id) REFERENCES items (id)
 );

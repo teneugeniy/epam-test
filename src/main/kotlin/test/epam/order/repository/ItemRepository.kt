@@ -5,4 +5,6 @@ import org.springframework.stereotype.Repository
 import test.epam.order.domain.entity.item.Item
 
 @Repository
-interface ItemRepository : JpaRepository<Item, Long>
+interface ItemRepository : JpaRepository<Item, Long> {
+    fun getOneByName(name: String): Item
+}

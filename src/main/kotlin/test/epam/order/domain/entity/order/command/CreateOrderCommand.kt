@@ -1,4 +1,4 @@
-package test.epam.order.domain.entity.order
+package test.epam.order.domain.entity.order.command
 
 import test.epam.order.domain.entity.item.Item
 import java.math.BigDecimal
