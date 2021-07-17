@@ -50,4 +50,37 @@ class OrderAppServiceImplTests {
         // assert
         assertEquals(orderDto, result)
     }
+
+    @Test
+    fun `getOrder SHOULD return mapped order by id`() {
+        // arrange
+        val order: Order = mock()
+        val orderDto: OrderDto = mock()
+        whenever(orderMapper.toOrderDto(order)).thenReturn(orderDto)
+        whenever(orderService.get(1)).thenReturn(order)
+
+        // act
+        val result = orderAppService.getOrder(1)
+
+        // assert
+        assertEquals(orderDto, result)
+    }
+
+    @Test
+    fun `findAll SHOULD return and map all fetched orders`() {
+        // arrange
+        val order1: Order = mock()
+        val order2: Order = mock()
+        val orderDto1: OrderDto = mock()
+        val orderDto2: OrderDto = mock()
+        whenever(orderMapper.toOrderDto(order1)).thenReturn(orderDto1)
+        whenever(orderMapper.toOrderDto(order2)).thenReturn(orderDto2)
+        whenever(orderService.findAll()).thenReturn(listOf(order1, order2))
+
+        // act
+        val result = orderAppService.findAll()
+
+        // assert
+        assertEquals(listOf(orderDto1, orderDto2), result)
+    }
 }

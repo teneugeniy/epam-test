@@ -12,6 +12,8 @@ import java.time.LocalDateTime
 
 interface OrderService {
     fun create(command: CreateOrderCommand, offerCommands: List<ApplyOfferCommand>): Order
+    fun get(id: Long): Order
+    fun findAll(): Collection<Order>
 }
 
 @Service
@@ -45,5 +47,15 @@ class OrderServiceImpl(
             totalPriceToPay = offerCommands.lastOrNull()?.recalculatedPrice ?: command.totalPrice
         )
         return orderRepository.save(order)
+    }
+
+    @Transactional(readOnly = true)
+    override fun get(id: Long): Order {
+        return orderRepository.getById(id)
+    }
+
+    @Transactional(readOnly = true)
+    override fun findAll(): Collection<Order> {
+        return orderRepository.findAll()
     }
 }

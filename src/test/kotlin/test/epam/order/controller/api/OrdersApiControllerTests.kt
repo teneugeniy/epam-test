@@ -10,15 +10,18 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.transaction.annotation.Transactional
 import test.epam.order.domain.entity.item.Item
+import test.epam.order.domain.entity.order.Order
 import test.epam.order.repository.ItemRepository
 import test.epam.order.repository.OrderRepository
 import test.epam.order.service.offer.calculator.BuyOneGetOneFreeOnApplesOfferCalculator
 import test.epam.order.service.offer.calculator.ThreeForPriceOfTwoOnOrangesOfferCalculator
+import java.time.LocalDateTime
 
 @ExtendWith(SpringExtension::class)
 @AutoConfigureMockMvc
@@ -76,7 +79,8 @@ class OrdersApiControllerTests {
                                 "calculatedTotal": 50.0
                             }
                         ],
-                        "totalPrice": 50.0
+                        "totalPrice": 50.00,
+                        "priceToPay": 50.00
                     }"""
                 )
             )
@@ -200,6 +204,92 @@ class OrdersApiControllerTests {
                         ],
                         "priceToPay": 1.00
                     }"""
+                )
+            )
+    }
+
+    @Test
+    fun `getById SHOULD return an order by id`() {
+        // arrange
+        val order = orderRepository.save(
+            Order(
+                items = emptyList(),
+                timeStamp = LocalDateTime.MIN,
+                totalPrice = 10.toBigDecimal(),
+                appliedOffers = emptyList(),
+                totalPriceToPay = 10.toBigDecimal(),
+            )
+        )
+
+        mvc.perform(
+            get("/api/orders/${order.idValue}")
+        )
+            .andExpect(status().isOk)
+            .andExpect(
+                content().json(
+                    """
+                    {
+                        "id": ${order.idValue},
+                        "items": [
+                        ],
+                        "totalPrice": 10.00,
+                        "appliedOffers": [
+                        ],
+                        "priceToPay": 10.00
+                    }"""
+                )
+            )
+    }
+
+    @Test
+    fun `findAll SHOULD return all orders`() {
+        // arrange
+        val order1 = orderRepository.save(
+            Order(
+                items = emptyList(),
+                timeStamp = LocalDateTime.MIN,
+                totalPrice = 10.toBigDecimal(),
+                appliedOffers = emptyList(),
+                totalPriceToPay = 10.toBigDecimal(),
+            )
+        )
+        val order2 = orderRepository.save(
+            Order(
+                items = emptyList(),
+                timeStamp = LocalDateTime.MIN,
+                totalPrice = 10.toBigDecimal(),
+                appliedOffers = emptyList(),
+                totalPriceToPay = 10.toBigDecimal(),
+            )
+        )
+
+        mvc.perform(
+            get("/api/orders")
+        )
+            .andExpect(status().isOk)
+            .andExpect(
+                content().json(
+                    """
+                    [
+                        {
+                            "id": ${order1.idValue},
+                            "items": [
+                            ],
+                            "totalPrice": 10.00,
+                            "appliedOffers": [
+                            ],
+                            "priceToPay": 10.00
+                        },
+                        {
+                            "id": ${order2.idValue},
+                            "items": [
+                            ],
+                            "totalPrice": 10.00,
+                            "appliedOffers": [
+                            ],
+                            "priceToPay": 10.00
+                        }
+                    ]"""
                 )
             )
     }
